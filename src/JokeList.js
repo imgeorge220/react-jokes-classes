@@ -9,39 +9,45 @@ class JokeList extends React.Component {
     this.state = {
       jokes: [],
     };
-    this.numJokesToGet = this.props.numJokesToGet;
+    
     this.vote = this.vote.bind(this);
     this.generateNewJokes = this.generateNewJokes.bind(this);
     this.sortJokes = this.sortJokes.bind(this);
+    this.getJokes = this.getJokes.bind(this);
   }
 
-  componentDidMount() {
-    const getJokes = async () => {
-      let j = [...this.state.jokes];
-      let seenJokes = new Set();
-      try {
-        console.log(this.numJokesToGet, "p")
-        while (j.length < this.props.numJokesToGet) {
-          let res = await axios.get("https://icanhazdadjoke.com", {
-            headers: { Accept: "application/json" }
-          });
-          let { status, ...jokeObj } = res.data;
+  async componentDidMount() {
+    await this.getJokes();
+  }
 
-          if (!seenJokes.has(jokeObj.id)) {
-            seenJokes.add(jokeObj.id);
-            j.push({ ...jokeObj, votes: 0 });
-          } else {
-            console.error("duplicate found!");
-          }
+  async componentDidUpdate() {
+    await this.getJokes();
+  }
+
+  getJokes = async () => {
+    let j = [...this.state.jokes];
+    let seenJokes = new Set();
+    try {
+      while (j.length < this.props.numJokesToGet) {
+        let res = await axios.get("https://icanhazdadjoke.com", {
+          headers: { Accept: "application/json" }
+        });
+        let { status, ...jokeObj } = res.data;
+
+        if (!seenJokes.has(jokeObj.id)) {
+          seenJokes.add(jokeObj.id);
+          j.push({ ...jokeObj, votes: 0 });
+        } else {
+          console.error("duplicate found!");
         }
-        console.log({j})
-        this.setState({ jokes: j });
-      } catch (e) {
-        console.log(e);
       }
+      console.log({j})
+      this.setState({ jokes: j });
+    } catch (e) {
+      console.log(e);
     }
-    getJokes();
   }
+
 
 
   generateNewJokes() {
@@ -49,9 +55,9 @@ class JokeList extends React.Component {
   }
 
   vote(id, delta) {
-    this.setState({
-      jokes: (this.state.jokes.map(j => (j.id === id ? { ...j, votes: j.votes + delta } : j)))
-    })
+    this.setState(prevState => ({
+      jokes: (prevState.jokes.map(j => (j.id === id ? { ...j, votes: j.votes + delta } : j)))
+    }))
   }
 
   sortJokes() {
