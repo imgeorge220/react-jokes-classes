@@ -1,6 +1,5 @@
 import React from "react";
 import "./Joke.css";
-import { render } from "@testing-library/react";
 
 class Joke extends React.Component {
   constructor(props) {
@@ -33,14 +32,5 @@ class Joke extends React.Component {
     )
   }
 }
-
-// class Joke extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = { 
-//       vote: this.props.vote
-//     };
-//   }  
-// }
 
 export default Joke;
